@@ -2388,7 +2388,7 @@ bool Sema::AttachBaseSpecifiers(CXXRecordDecl *Class,
       if (const RecordType *Record = NewBaseType->getAs<RecordType>()) {
         const CXXRecordDecl *RD = cast<CXXRecordDecl>(Record->getDecl());
         if (Class->isInterface() &&
-              (!RD->isInterface() ||
+              (!RD->isInterfaceLike() ||
                KnownBase->getAccessSpecifier() != AS_public)) {
           // The Microsoft extension __interface does not permit bases that
           // are not themselves public interfaces.
@@ -12436,7 +12436,8 @@ ExprResult Sema::BuildCXXDefaultInitExpr(SourceLocation Loc, FieldDecl *Field) {
       assert(Pattern && "We must have set the Pattern!");
     }
 
-    if (InstantiateInClassInitializer(Loc, Field, Pattern,
+    if (!Pattern->hasInClassInitializer() ||
+        InstantiateInClassInitializer(Loc, Field, Pattern,
                                       getTemplateInstantiationArgs(Field))) {
       // Don't diagnose this again.
       Field->setInvalidDecl();
